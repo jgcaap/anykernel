@@ -101,9 +101,14 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
   mount -o rw,remount -t auto /system;
   mount -o rw,remount -t auto /vendor 2>/dev/null;
   cd /tmp/anykernel/modules;
+for module in $(find . -name '*.ko'); do
     $bb cp -rLf $module /$module;
     $bb chown 0:0 /$module;
     $bb chmod 644 /$module;
+    if [ "$mod" ]; then
+      chcon "u:object_r:${mod}_file:s0" $module;
+    fi;
+done
     $bb cp -rLf $module/wlan.ko /system/vendor/lib/modules/qca_cld3_wlan.ko;
     $bb cp -rLf $module/msm_11ad_proxy.ko /system/vendor/lib/modules/msm_11ad_proxy.ko;
     $bb cp -rLf $module/wil6210.ko /system/vendor/lib/modules/wil6210.ko;
@@ -111,9 +116,7 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
     $bb chmod 644 /system/vendor/lib/modules;
     if [ "$mod" ]; then
       chcon "u:object_r:${mod}_file:s0" /system/vendor/lib/modules;
-      chcon "u:object_r:${mod}_file:s0" $module;
     fi;
-  done;
   cd /tmp/anykernel;
   mount -o ro,remount -t auto /system;
   mount -o ro,remount -t auto /vendor 2>/dev/null;
